@@ -69,10 +69,11 @@ def write_to_file():
     place=place.rstrip('\r\n')
     print(place)
 
+    stopwatch = Stopwatch()
+
     if SaveName != "" and SaveName != "            Name":
 
-        #hs = open("/home/pi/Desktop/Food_Pantry_Donations.csv","a") #RPI400
-        hs = open("C:/Users/nicos/Documents/Food_Pantry_Donations.csv","a") #Laptop
+        hs = open("C:/Users/nicos/Documents/wms_sign_out.csv","a") #Laptop
         ct = datetime.datetime.now()
         
         hs.write(SaveName)
@@ -81,20 +82,23 @@ def write_to_file():
         hs.write(place)
         hs.write(",")
         
-        Stopwatch.start()
+        stopwatch.start()
         hs.write(str(ct))
         hs.write(",")
         
-        CTkMessagebox(title="Saved", message=SaveName+', thank you for your '+weight_to_file+' lbs. donation!')
+        pop = CTkMessagebox(title="Saved", message=SaveName+', thank you for your '+weight_to_file+' lbs. donation!', option_1="I'm back.")
 
-        Stopwatch.stop()
-        hs.write(str(ct))
-        hs.write(",")
-        total = Stopwatch.elapsed_time()
-        hs.write(total)
+        if pop.get()=="I'm back.":
+            stopwatch.stop()
+        #hs.write(str(ct))
+        #hs.write(",")
+        total = stopwatch.elapsed_time()
+        rounded_total = round(total)
+        rounded_total = str(rounded_total)
+        hs.write(rounded_total)
 
         hs.write(" \n")
-        Stopwatch.reset()
+        stopwatch.reset()
         hs.close
         
         name.set('')
@@ -170,7 +174,11 @@ def adjust_font_size(event=None):
     r3.configure(font=("Helvetica", new_font_size // 2))
 
 def my_mainloop():
-    print("...")
+    global original_color
+    NameEntry.insert(0, "            Name")
+    original_color = NameEntry.cget('text_color')
+    NameEntry.configure(text_color='grey')
+    NameEntry.bind('<FocusIn>', on_entry_click)
     root.after(1000, my_mainloop)
     
 
