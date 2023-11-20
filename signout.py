@@ -1,23 +1,12 @@
 import tkinter as tk
-import serial,time
+import time, sys, random, customtkinter, datetime
 from tkinter.ttk import Label
 from tkinter.messagebox import showinfo
-import datetime
-import sys
-import random
-import customtkinter
-import packaging
 from CTkMessagebox import CTkMessagebox
-#SERIALPORT = "/dev/ttyUSB0"  #Real Sparfun Open Scale
-SERIALPORT = "/dev/ttyACM0"  #Dummy Sparfun Open Scale on Arduino
-
-BAUDRATE = 9600
-
-#ser = serial.Serial(SERIALPORT, BAUDRATE, timeout =1)
 
 root = customtkinter.CTk()
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme("green") # Themes: "blue", "green", "dark-blue"
+customtkinter.set_default_color_theme("dark-blue") # Themes: "blue", "green", "dark-blue"
 root.geometry('1000x500')
 root.resizable(True, True)
 root.title('Troop 30 Food Drive Weigh Station')
@@ -26,213 +15,147 @@ root.title('Troop 30 Food Drive Weigh Station')
 root.columnconfigure(0, weight=1)
 root.columnconfigure(1, weight=1)
 root.columnconfigure(2, weight=1)
+root.columnconfigure(3, weight=1)
+root.columnconfigure(4, weight=1)
 root.rowconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 root.rowconfigure(2, weight=1)
 root.rowconfigure(3, weight=1)
 root.rowconfigure(4, weight=1)
 root.rowconfigure(5, weight=1)
+root.rowconfigure(6, weight=1)
+root.rowconfigure(7, weight=1)
 
 
-scout = tk.StringVar(root)
-weight_to_display = tk.StringVar(root)
-ScoutType = tk.StringVar(root)
-ScoutType.set("Scout")
-Bigtotal = tk.StringVar(root)
-Bigtotal.set("0")
+name = tk.StringVar(root)
+place = tk.StringVar(root)
+place.set("Bathroom")
 
-#def get_serial(StringToSend):
-#    print("StringToSend = "+StringToSend)
-#    weight_string = ""
-#    weight = 00.0
-#    miliseconds = 0
-#    Data_Ready = 0
-#    
-#    ser.reset_input_buffer()
-#    ser.reset_output_buffer()
-#    
-#    #ser.write(bytearray("W",'ascii'))
-#    ser.write(StringToSend.encode('utf-8'))
-#    
-#    #time.sleep(.1)
-#    while (Data_Ready == 0):
-#        Data_Ready = ser.inWaiting()
-#        pass
-#    
-#    input_string =""
-#    
-#    input_string = ser.readline().decode('utf-8')
-#    print (input_string)
-#    
-#    try:
-#        split_input_string = input_string.split(",")
-#        print("weight splitting")
-#        print (split_input_string[0])
-#        print (split_input_string[1])
-#        weight_string = split_input_string[0]
-#        weight_string = weight_string.rstrip()
-#        weight_string = weight_string.rstrip('lbs')
-#        
-#        print("weight_string = "+ weight_string)
-#        weight = float(weight_string)
-#        
-#        print("weight = "+ str(weight))
-#        
-#        #miliseconds_string = split_input_string[0].strip()
-#        #miliseconds = int(miliseconds_string)
-#        
-#        print("milliseconds = " + str(miliseconds))
-#              
-#        return weight
-#        
-#    except:
-#        print("Not Weight Data")
-#        print (split_input_string[0])
-        
-    
-   
+class Stopwatch:
+    def __init__(self):
+        self.start_time = None
+        self.end_time = None
 
+    def start(self):
+        self.start_time = time.time()
+
+    def stop(self):
+        self.end_time = time.time()
+
+    def elapsed_time(self):
+        if self.start_time and self.end_time:
+            return self.end_time - self.start_time
+        else:
+            return 0
+
+    def reset(self):
+        self.start_time = None
+        self.end_time = None
 
 def write_to_file():
     #print("Saving")
     ct = 0
-    
-    bt = 0.0
-    ScoutName = ""
-    ScoutTypeDisplay = ""
+    SaveName = ""
+    place = ""
     weight_to_file = ""
     
-    print("ScoutName = ")
-    ScoutName=str(scout.get())
-    ScoutName = str.title(ScoutName)
-    print(ScoutName)
+    print("Name = ")
+    SaveName=str(name.get())
+    SaveName = str.title(SaveName)
+    print(SaveName)
                  
-    print("ScoutType = ")
-    ScoutTypeDisplay=str(ScoutType.get())
-    ScoutTypeDisplay=ScoutTypeDisplay.rstrip('\r\n')
-    print(ScoutTypeDisplay)
-    
-    print("Donation Weight = ")
-    weight_to_file = str(weight_to_display.get())
-    weight_to_file = weight_to_file.rstrip(" lbs.")
-    print(weight_to_file)
-    
-    
-    
-    
-    if ScoutName != "":
+    print("Where = ")
+    place=str(place)
+    place=place.rstrip('\r\n')
+    print(place)
+
+    if SaveName != "" and SaveName != "            Name":
 
         #hs = open("/home/pi/Desktop/Food_Pantry_Donations.csv","a") #RPI400
         hs = open("C:/Users/nicos/Documents/Food_Pantry_Donations.csv","a") #Laptop
         ct = datetime.datetime.now()
         
-        hs.write(ScoutName)
+        hs.write(SaveName)
         hs.write(",")
         
-        hs.write(ScoutTypeDisplay)
-        hs.write(",")
-    
-        hs.write(weight_to_file)
+        hs.write(place)
         hs.write(",")
         
-        hs.write("lbs")
-        hs.write(",")
-        
-        
-        bt = float(Bigtotal.get())
-        bt = round(bt + float(weight_to_file),2)
-        Bigtotal.set(str(bt))
-        print("Bigtotal=" + Bigtotal.get())
-        hs.write(str(bt))
-        hs.write(",")
-        
-        hs.write("lbs")
-        hs.write(",")
-        
-        
+        Stopwatch.start()
         hs.write(str(ct))
+        hs.write(",")
+        
+        CTkMessagebox(title="Saved", message=SaveName+', thank you for your '+weight_to_file+' lbs. donation!')
+
+        Stopwatch.stop()
+        hs.write(str(ct))
+        hs.write(",")
+        total = stopwatch.elapsed_time()
+        hs.write(total)
+
         hs.write(" \n")
-    
+        Stopwatch.reset()
         hs.close
         
-        scout.set(ScoutName)
-        
-        CTkMessagebox(title="Saved", message=ScoutName+', thank you for your '+weight_to_file+' lbs. donation!')
+        name.set('')
         
             
     else:            
-        CTkMessagebox(title="Error, Not saved", message='Please Name The '+ ScoutTypeDisplay, icon="cancel")
-        
-        
-def Tare_The_Scale():
-    tare = 0
-    #Tare = get_serial("x") #gives error with dummy weight
-    
-    #Tare = get_serial("1")
-    
-    #Tare = get_serial("x")
+        CTkMessagebox(title="Error", message='Please enter a name.', icon="cancel")
 
 
 
-    
+
+def on_entry_click(event):
+    if NameEntry.get() == "            Name":
+       NameEntry.delete(0, "end") # delete all the text in the entry
+       NameEntry.insert(0, '') #Insert blank for user input 
+       NameEntry.configure(text_color=original_color)
+
+
     
 btnSaveToFile = customtkinter.CTkButton(
-            root,text = "Save To File",
+            root,text = "Take the pass",
             font=("Helvetica", 60),command = write_to_file,)
 
 btnSaveToFile.grid(row = 4, column = 2, columnspan = 1, rowspan = 3)
 
-btnTare = customtkinter.CTkButton(
-            root,text = "Tare",
-            font=("Helvetica", 20),command = Tare_The_Scale)
-
-btnTare.grid(row = 3, column = 2, columnspan = 1, rowspan = 3)
-
-
-label1 = customtkinter.CTkLabel(
-        root,
-        textvariable=(weight_to_display),
-        font=("Helvetica", 200),
-        width = 100)
-
-label1.grid(row = 0, column = 0,columnspan = 3,rowspan = 3)
-      
         
-label2 = customtkinter.CTkLabel(
+where_text = customtkinter.CTkLabel(
         root,
-        textvariable=(Bigtotal),
-        font=("Helvetica", 60))
-
-label2.grid(row = 3, column = 2,columnspan = 1,rowspan = 1)       
-        
-label3 = customtkinter.CTkLabel(
-        root,
-        text=("200 lbs. maxiumum on scale."),
+        text=("Where are you going:"),
         font=("Helvetica", 40))
 
-label3.grid(row = 5, column = 1,columnspan = 1,rowspan = 1)
+where_text.grid(row = 0, column = 0,columnspan = 1,rowspan = 4, sticky='w', padx=(30, 0))
 
 
 NameEntry = customtkinter.CTkEntry(root,
-                     textvariable  = scout,
+                     textvariable  = name,
                      font=("Helvetica", 60),
                      width = 300,
-                     height = 60)
+                     height = 60
+                     )
 
-NameEntry.grid(row = 4,column = 1,columnspan=1,rowspan = 3,)
+NameEntry.grid(row = 0,column = 0,columnspan=1,rowspan = 2, sticky='w', padx=(25, 0))
 
-
+NameEntry.insert(0, "            Name")
+original_color = NameEntry.cget('text_color')
+NameEntry.configure(text_color='grey')
+NameEntry.bind('<FocusIn>', on_entry_click)
 
     
 
-r1 = customtkinter.CTkRadioButton(root, text='Scout', font=("Helvetica", 20), value='Scout', variable=ScoutType)
-r1.grid(row = 3, column = 0, rowspan =1) 
+r1 = customtkinter.CTkRadioButton(root, text='Bathroom', font=("Helvetica", 20), value='Bathroom', variable=place)
+r1.grid(row = 2, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  # 'w' makes the button stick to the west (left) side of the cell
+ 
 
-r2 = customtkinter.CTkRadioButton(root, text='Webelo', font=("Helvetica", 20), value='Webelo', variable=ScoutType)
-r2.grid(row = 4, column = 0, rowspan = 1) 
+r2 = customtkinter.CTkRadioButton(root, text='Locker', font=("Helvetica", 20), value='Locker', variable=place)
+r2.grid(row = 3, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  # Added padx=(10, 0) for left-side padding
 
-r3 = customtkinter.CTkRadioButton(root, text='Other', font=("Helvetica", 20), value='Other', variable=ScoutType)
-r3.grid(row = 5, column = 0, rowspan = 1)
+
+r3 = customtkinter.CTkRadioButton(root, text='Other', font=("Helvetica", 20), value='Other', variable=place)
+r3.grid(row = 4, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  
+
 
 def adjust_font_size(event=None):
     # Calculate a new font size based on the window width and height
@@ -240,30 +163,16 @@ def adjust_font_size(event=None):
     
     # Set the new font size for all relevant widgets
     btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 1.5)))
-    btnTare.configure(font=("Helvetica", new_font_size // 1.5))
-    label1.configure(font=("Helvetica", new_font_size))
-    label2.configure(font=("Helvetica", new_font_size))
-    label3.configure(font=("Helvetica", int(new_font_size // 1.3)))
+    where_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
     NameEntry.configure(font=("Helvetica", new_font_size))
     r1.configure(font=("Helvetica", new_font_size // 2))
     r2.configure(font=("Helvetica", new_font_size // 2))
     r3.configure(font=("Helvetica", new_font_size // 2))
 
 def my_mainloop():
-    #print("Main Loop")
-    
-    #weight= get_serial("0") #Real Weight
-    weight= random.randint(1,110) #Fake weight
-    data0 = str(weight)
-    #data0 = data0 + " lbs."
-    weight_to_display.set(data0 + " lbs.")
-    
-    #print("weight_to_display = "+ data0 )
-        
+    print("...")
     root.after(1000, my_mainloop)
     
-    
-root.after(1000, my_mainloop)
 
 
 adjust_font_size(0)
