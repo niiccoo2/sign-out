@@ -90,7 +90,7 @@ def write_to_file():
         Stopwatch.stop()
         hs.write(str(ct))
         hs.write(",")
-        total = stopwatch.elapsed_time()
+        total = Stopwatch.elapsed_time()
         hs.write(total)
 
         hs.write(" \n")
