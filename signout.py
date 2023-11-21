@@ -27,10 +27,11 @@ root.rowconfigure(5, weight=1)
 root.rowconfigure(6, weight=1)
 root.rowconfigure(7, weight=1)
 
-
+other = tk.StringVar(root)
 name = tk.StringVar(root)
 place = tk.StringVar(root)
 place.set("Bathroom")
+
 
 class Stopwatch:
     def __init__(self):
@@ -71,53 +72,57 @@ def write_to_file():
     Saveplace=Saveplace.rstrip('\r\n')
     #print(Saveplace)
 
+    if Saveplace == "Other":
+        Saveplace = str(other.get())+" (Other)"
+    other.set("")
     stopwatch = Stopwatch()
 
     if SaveName != "" and SaveName != "Name":
-
-        hs = open("C:/Users/nicos/Documents/wms_sign_out.csv","a") #Laptop
-        ct = datetime.datetime.now()
-        
-        hs.write(SaveName)
-        hs.write(",")
-        
-        hs.write(Saveplace)
-        hs.write(",")
-        
-        stopwatch.start()
-        hs.write(str(ct))
-        hs.write(",")
-        
-        pop = CTkMessagebox(title="Saved", message=SaveName+', thank you for your '+weight_to_file+' lbs. donation!', option_1="I'm back.")
-
-        if pop.get()=="I'm back.":
-            stopwatch.stop()
-            print("name")
+        if Saveplace != str(" (Other)") and place.get() == 'Other':
+            #hs = open("C:/Users/nicos/Documents/wms_sign_out.csv","a") #Laptop
+            hs = open("./wms_sign_out.csv","a") #Replit
+            ct = datetime.datetime.now()
+            
+            hs.write(SaveName)
+            hs.write(",")
+            
+            hs.write(Saveplace)
+            hs.write(",")
+            
+            stopwatch.start()
+            hs.write(str(ct))
+            hs.write(",")
+            
+            pop = CTkMessagebox(title="Saved", message=SaveName+', thank you for signing out,\nplease take the pass.\n \nClick the button when you are back.', option_1="I'm back.")
+    
+            if pop.get()=="I'm back.":
+                stopwatch.stop()
+                print("name")
+                #NameEntry.delete(0, "end")
+                #NameEntry.insert(0, "Name")
+                #original_color = NameEntry.cget('text_color')
+                #NameEntry.configure(text_color='grey') # This is running
+                #PlaceHolder(0)
+                
+            #hs.write(str(ct))
+            #hs.write(",")
+            total = stopwatch.elapsed_time()
+            rounded_total = round(total)
+            rounded_total = str(rounded_total)
+            hs.write(rounded_total)
+    
+            hs.write(" \n")
+            stopwatch.reset()
+            hs.close()
+            where_text.focus()
+            #placeHolder(0)
+            
+            
+            
+            name.set('')
             #NameEntry.delete(0, "end")
-            #NameEntry.insert(0, "Name")
-            #original_color = NameEntry.cget('text_color')
-            #NameEntry.configure(text_color='grey') # This is running
-            reset_name_entry()
-            placeHolder()
-            
-        #hs.write(str(ct))
-        #hs.write(",")
-        total = stopwatch.elapsed_time()
-        rounded_total = round(total)
-        rounded_total = str(rounded_total)
-        hs.write(rounded_total)
-
-        hs.write(" \n")
-        stopwatch.reset()
-        hs.close()
-        where_text.focus()
-        placeHolder()
-        
-        
-        
-        name.set('')
-        
-            
+        else:    
+            CTkMessagebox(title="Error", message='Please enter a place.', icon="cancel")
     else:            
         CTkMessagebox(title="Error", message='Please enter a name.', icon="cancel")
 
@@ -130,14 +135,14 @@ def on_entry_click(event):
        NameEntry.insert(0, '') #Insert blank for user input 
        NameEntry.configure(text_color=original_color)
 
-def placeHolder():
+def placeHolder(place):
     global original_color
-    NameEntry.delete(0, "end")
-    NameEntry.insert(0, "Name")
+    name.set('')
+    name.set("Name")
     original_color = NameEntry.cget('text_color')
     NameEntry.configure(text_color='grey')
     NameEntry.bind('<FocusIn>', on_entry_click)
-    NameEntry.bind('<FocusOut>', placeHolder)
+    #where_text.bind('<FocusIn>', placeHolder)
 
 def reset_name_entry():
     global original_color
@@ -166,6 +171,12 @@ where_text = customtkinter.CTkLabel(
 
 where_text.grid(row = 0, column = 0,columnspan = 1,rowspan = 4, sticky='w', padx=(30, 0))
 
+name_text = customtkinter.CTkLabel(
+  root,
+  text=("Name:"),
+  font=("Helvetica", 40))
+
+name_text.grid(row = 0, column = 0,columnspan = 1,rowspan = 1, sticky='nw', padx=(30, 0), pady=(1, 0))
 
 NameEntry = customtkinter.CTkEntry(root,
                      textvariable  = name,
@@ -176,13 +187,22 @@ NameEntry = customtkinter.CTkEntry(root,
 
 NameEntry.grid(row = 0,column = 0,columnspan=1,rowspan = 2, sticky='w', padx=(25, 0))
 
+
+OtherEntry = customtkinter.CTkEntry(root,
+                     textvariable  = other,
+                     font=("Helvetica", 60),
+                     width = 300,
+                     height = 60
+                     )
+
+OtherEntry.grid(row = 5,column = 0,columnspan=1,rowspan = 1, sticky='nw', padx=(25, 0))
+
 #NameEntry.delete(0, "end")
 #NameEntry.insert(0, "Name")
 #original_color = NameEntry.cget('text_color')
 #NameEntry.configure(text_color='grey')
 #NameEntry.bind('<FocusIn>', on_entry_click)
-placeHolder()
-    
+#placeHolder(0)
 
 r1 = customtkinter.CTkRadioButton(root, text='Bathroom', font=("Helvetica", 20), value='Bathroom', variable=place)
 r1.grid(row = 2, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  # 'w' makes the button stick to the west (left) side of the cell
@@ -192,7 +212,7 @@ r2 = customtkinter.CTkRadioButton(root, text='Locker', font=("Helvetica", 20), v
 r2.grid(row = 3, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  # Added padx=(10, 0) for left-side padding
 
 
-r3 = customtkinter.CTkRadioButton(root, text='Other', font=("Helvetica", 20), value='Other', variable=place)
+r3 = customtkinter.CTkRadioButton(root, text='Other:', font=("Helvetica", 20), value='Other', variable=place)
 r3.grid(row = 4, column = 0, rowspan = 1, columnspan = 1, sticky='w', padx=(40, 0))  
 
 
@@ -203,7 +223,9 @@ def adjust_font_size(event=None):
     # Set the new font size for all relevant widgets
     btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 0.5)))
     where_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
+    name_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
     NameEntry.configure(font=("Helvetica", new_font_size))
+    OtherEntry.configure(font=("Helvetica", new_font_size))
     r1.configure(font=("Helvetica", new_font_size // 2))
     r2.configure(font=("Helvetica", new_font_size // 2))
     r3.configure(font=("Helvetica", new_font_size // 2))
@@ -217,8 +239,8 @@ def my_mainloop():
 adjust_font_size(0)
 root.bind("<Configure>", adjust_font_size)
 
-placeHolder()
-print('run')
+#placeHolder(0)
+#print('run')
 root.mainloop(
 )
   
