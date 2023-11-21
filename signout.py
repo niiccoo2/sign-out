@@ -3,13 +3,14 @@ import time, sys, random, customtkinter, datetime
 from tkinter.ttk import Label
 from tkinter.messagebox import showinfo
 from CTkMessagebox import CTkMessagebox
+from PIL import ImageTk, Image
 
 root = customtkinter.CTk()
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue") # Themes: "blue", "green", "dark-blue"
 root.geometry('1000x500')
 root.resizable(True, True)
-root.title('Troop 30 Food Drive Weigh Station')
+root.title('WMS Sign-Out')
 
 
 root.columnconfigure(0, weight=1)
@@ -56,22 +57,23 @@ def write_to_file():
     #print("Saving")
     ct = 0
     SaveName = ""
-    place = ""
+    Saveplace = ""
     weight_to_file = ""
+    global original_color
     
-    print("Name = ")
+    #print("Name = ")
     SaveName=str(name.get())
     SaveName = str.title(SaveName)
-    print(SaveName)
+    #print(SaveName)
                  
-    print("Where = ")
-    place=str(place)
-    place=place.rstrip('\r\n')
-    print(place)
+    #print("Where = ")
+    Saveplace=str(place.get())
+    Saveplace=Saveplace.rstrip('\r\n')
+    #print(Saveplace)
 
     stopwatch = Stopwatch()
 
-    if SaveName != "" and SaveName != "            Name":
+    if SaveName != "" and SaveName != "Name":
 
         hs = open("C:/Users/nicos/Documents/wms_sign_out.csv","a") #Laptop
         ct = datetime.datetime.now()
@@ -79,7 +81,7 @@ def write_to_file():
         hs.write(SaveName)
         hs.write(",")
         
-        hs.write(place)
+        hs.write(Saveplace)
         hs.write(",")
         
         stopwatch.start()
@@ -90,6 +92,14 @@ def write_to_file():
 
         if pop.get()=="I'm back.":
             stopwatch.stop()
+            print("name")
+            #NameEntry.delete(0, "end")
+            #NameEntry.insert(0, "Name")
+            #original_color = NameEntry.cget('text_color')
+            #NameEntry.configure(text_color='grey') # This is running
+            reset_name_entry()
+            placeHolder()
+            
         #hs.write(str(ct))
         #hs.write(",")
         total = stopwatch.elapsed_time()
@@ -99,7 +109,11 @@ def write_to_file():
 
         hs.write(" \n")
         stopwatch.reset()
-        hs.close
+        hs.close()
+        where_text.focus()
+        placeHolder()
+        
+        
         
         name.set('')
         
@@ -111,18 +125,38 @@ def write_to_file():
 
 
 def on_entry_click(event):
-    if NameEntry.get() == "            Name":
+    if NameEntry.get() == "Name":
        NameEntry.delete(0, "end") # delete all the text in the entry
        NameEntry.insert(0, '') #Insert blank for user input 
        NameEntry.configure(text_color=original_color)
 
+def placeHolder():
+    global original_color
+    NameEntry.delete(0, "end")
+    NameEntry.insert(0, "Name")
+    original_color = NameEntry.cget('text_color')
+    NameEntry.configure(text_color='grey')
+    NameEntry.bind('<FocusIn>', on_entry_click)
+    NameEntry.bind('<FocusOut>', placeHolder)
 
+def reset_name_entry():
+    global original_color
+    NameEntry.delete(0, tk.END)
+    NameEntry.insert(0, "Name")
+    original_color = NameEntry.cget('text_color')
+    NameEntry.configure(text_color='grey')
+    NameEntry.bind('<FocusIn>', on_entry_click)
     
-btnSaveToFile = customtkinter.CTkButton(
-            root,text = "Take the pass",
-            font=("Helvetica", 60),command = write_to_file,)
+btnSaveToFile = customtkinter.CTkButton(root,
+            text = "Sign Out",
+            font=("Helvetica", 60),
+            command = write_to_file,
+            width = 600,
+            height = 100)
+            
+            
 
-btnSaveToFile.grid(row = 4, column = 2, columnspan = 1, rowspan = 3)
+btnSaveToFile.grid(row = 6, column = 1, columnspan = 1, rowspan = 1, sticky='e')
 
         
 where_text = customtkinter.CTkLabel(
@@ -142,11 +176,12 @@ NameEntry = customtkinter.CTkEntry(root,
 
 NameEntry.grid(row = 0,column = 0,columnspan=1,rowspan = 2, sticky='w', padx=(25, 0))
 
-NameEntry.insert(0, "            Name")
-original_color = NameEntry.cget('text_color')
-NameEntry.configure(text_color='grey')
-NameEntry.bind('<FocusIn>', on_entry_click)
-
+#NameEntry.delete(0, "end")
+#NameEntry.insert(0, "Name")
+#original_color = NameEntry.cget('text_color')
+#NameEntry.configure(text_color='grey')
+#NameEntry.bind('<FocusIn>', on_entry_click)
+placeHolder()
     
 
 r1 = customtkinter.CTkRadioButton(root, text='Bathroom', font=("Helvetica", 20), value='Bathroom', variable=place)
@@ -166,7 +201,7 @@ def adjust_font_size(event=None):
     new_font_size = int((root.winfo_width() + root.winfo_height()) // 50)  # Adjust this formula as needed
     
     # Set the new font size for all relevant widgets
-    btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 1.5)))
+    btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 0.5)))
     where_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
     NameEntry.configure(font=("Helvetica", new_font_size))
     r1.configure(font=("Helvetica", new_font_size // 2))
@@ -174,11 +209,7 @@ def adjust_font_size(event=None):
     r3.configure(font=("Helvetica", new_font_size // 2))
 
 def my_mainloop():
-    global original_color
-    NameEntry.insert(0, "            Name")
-    original_color = NameEntry.cget('text_color')
-    NameEntry.configure(text_color='grey')
-    NameEntry.bind('<FocusIn>', on_entry_click)
+    print('loop')
     root.after(1000, my_mainloop)
     
 
@@ -186,6 +217,8 @@ def my_mainloop():
 adjust_font_size(0)
 root.bind("<Configure>", adjust_font_size)
 
+placeHolder()
+print('run')
 root.mainloop(
 )
   
