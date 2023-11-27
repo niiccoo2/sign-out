@@ -156,12 +156,12 @@ btnSaveToFile = customtkinter.CTkButton(root,
             text = "Sign Out",
             font=("Helvetica", 60),
             command = write_to_file,
-            width = 300,
+            width = 600,
             height = 100)
             
             
 
-btnSaveToFile.grid(row = 6, column = 0, columnspan = 1, rowspan = 1, sticky='w', padx=(25, 0))
+btnSaveToFile.grid(row = 6, column = 1, columnspan = 1, rowspan = 1, sticky='e')
 
         
 where_text = customtkinter.CTkLabel(
@@ -221,7 +221,7 @@ def adjust_font_size(event=None):
     new_font_size = int((root.winfo_width() + root.winfo_height()) // 50)  # Adjust this formula as needed
     
     # Set the new font size for all relevant widgets
-    btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 0.6)))
+    btnSaveToFile.configure(font=("Helvetica", int(new_font_size // 0.5)))
     where_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
     name_text.configure(font=("Helvetica", int(new_font_size // 1.5)))
     NameEntry.configure(font=("Helvetica", new_font_size))
